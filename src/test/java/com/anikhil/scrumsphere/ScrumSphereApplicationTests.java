@@ -7,7 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 class ScrumSphereApplicationTests {
 
 	@Test
-	void contextLoads() {
+	void contextLoads() { //NOSONAR
 	}
 
 }
