@@ -5,6 +5,8 @@ import com.anikhil.scrumsphere.users.dao.UserDao;
 import com.anikhil.scrumsphere.users.models.User;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class UserService implements BaseService<User> {
 
@@ -19,7 +21,12 @@ public class UserService implements BaseService<User> {
         return this.userDao.save(user);
     }
 
-    public User createUser(String userId, String name, String email) {
-        return this.create(new User(userId, name, email));
+    public User createUser(String userId, String password) {
+        return this.create(new User(userId, password));
+    }
+
+    public Optional<User> findUserByUserId(String userId) {
+        User user = this.userDao.findUserByUserId(userId);
+        return Optional.ofNullable(user);
     }
 }

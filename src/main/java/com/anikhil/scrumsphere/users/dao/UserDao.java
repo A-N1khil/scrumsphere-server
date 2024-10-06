@@ -15,8 +15,8 @@ public class UserDao implements BaseWriteDao<User> {
         this.userQuickReadDao = userQuickReadDao;
     }
 
-    public User findUserByName(String name) {
-        return userQuickReadDao.findUserByName(name);
+    public User findUserByUserId(String userId) {
+        return userQuickReadDao.findByUserId(userId);
     }
 
     @Override
