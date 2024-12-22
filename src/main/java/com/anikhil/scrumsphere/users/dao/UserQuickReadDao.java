@@ -11,4 +11,7 @@ public interface UserQuickReadDao extends MongoRepository<User, String> {
 
     @Query(value = "{ 'userId' : ?0 }")
     User findByUserId(String userId);
+
+    @Query(value = "{ 'userId' : ?0, 'password' : ?1 }")
+    User findUserByIdAndPassword(String userId, String password);
 }

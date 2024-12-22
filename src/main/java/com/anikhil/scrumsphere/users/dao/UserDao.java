@@ -21,6 +21,10 @@ public class UserDao implements BaseWriteDao<User> {
         return Optional.ofNullable(userQuickReadDao.findByUserId(userId));
     }
 
+    public Optional<User> findUserByIdAndPassword(String userId, String password) {
+        return Optional.ofNullable(userQuickReadDao.findUserByIdAndPassword(userId, password));
+    }
+
     @Override
     public User save(User user) {
         return this.userQuickReadDao.save(user);

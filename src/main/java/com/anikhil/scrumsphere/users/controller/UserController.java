@@ -26,8 +26,15 @@ public class UserController extends BaseController {
         return sendSuccessResponse(this.userService.createUser(userId, password));
     }
 
-    @GetMapping("/login")
-    public JsonNode login(@RequestParam String userId) {
-        return sendSuccessResponse(this.userService.findUserByUserId(userId));
+    @PostMapping("/login")
+    public JsonNode login(@RequestBody JsonNode payload) {
+        String userId = payload.get("userId").asText();
+        String password = payload.get("password").asText();
+        return sendSuccessResponse(this.userService.findUserByIdAndPassword(userId, password));
+    }
+
+    @GetMapping("/isUserNameValid")
+    public JsonNode isUserNameValid(@RequestParam String userId) {
+        return sendSuccessResponse(this.userService.isUserNameValid(userId));
     }
 }
