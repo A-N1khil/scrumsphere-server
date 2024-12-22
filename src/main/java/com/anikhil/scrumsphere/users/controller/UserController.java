@@ -18,7 +18,7 @@ public class UserController extends BaseController {
         this.userService = userService;
     }
 
-    @PostMapping("/create")
+    @PostMapping("/register")
     public JsonNode createUser(@RequestBody JsonNode payload) {
         String userId = payload.get("userId").asText();
         String password = payload.get("password").asText();
@@ -26,8 +26,8 @@ public class UserController extends BaseController {
         return sendSuccessResponse(this.userService.createUser(userId, password));
     }
 
-    @GetMapping("/getUser")
-    public JsonNode getUser(@RequestParam String userId) {
+    @GetMapping("/login")
+    public JsonNode login(@RequestParam String userId) {
         return sendSuccessResponse(this.userService.findUserByUserId(userId));
     }
 }

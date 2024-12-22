@@ -17,7 +17,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Base64;
-import java.util.Optional;
 
 @Component
 @Log4j2
@@ -56,8 +55,15 @@ public class BasicAuthFilter extends OncePerRequestFilter {
         }
 
         User requestedUser = extractAndDecodeHeader(header);
-        Optional<User> userFromDb = this.userService.findUserByUserId(requestedUser.getUserId());
-        boolean isAuthenticated = userFromDb.isPresent() && userFromDb.get().getPassword().equals(requestedUser.getPassword());
+        User userFromDb = this.userService.findUserByUserId(requestedUser.getUserId());
+
+        // Check if the user exists
+        if (userFromDb == null) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "User not found");
+            return;
+        }
+
+        boolean isAuthenticated = userFromDb.getPassword().equals(requestedUser.getPassword());
 
         if (!isAuthenticated) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid credentials");
@@ -66,8 +72,8 @@ public class BasicAuthFilter extends OncePerRequestFilter {
 
         // Set the user to the Security Context
         UserDetails authUser = org.springframework.security.core.userdetails.User.builder()
-                .username(userFromDb.get().getUserId())
-                .password(userFromDb.get().getPassword())
+                .username(userFromDb.getUserId())
+                .password(userFromDb.getPassword())
                 .roles("USER")
                 .build();
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(authUser, null, authUser.getAuthorities());
@@ -79,6 +85,6 @@ public class BasicAuthFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        return StringUtils.startsWith(request.getRequestURI(), "/users/create");
+        return StringUtils.startsWithAny(request.getRequestURI(), "/users/register", "/users/login");
     }
 }

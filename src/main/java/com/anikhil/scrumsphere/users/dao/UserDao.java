@@ -5,6 +5,8 @@ import com.anikhil.scrumsphere.users.models.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public class UserDao implements BaseWriteDao<User> {
 
@@ -15,8 +17,8 @@ public class UserDao implements BaseWriteDao<User> {
         this.userQuickReadDao = userQuickReadDao;
     }
 
-    public User findUserByUserId(String userId) {
-        return userQuickReadDao.findByUserId(userId);
+    public Optional<User> findUserByUserId(String userId) {
+        return Optional.ofNullable(userQuickReadDao.findByUserId(userId));
     }
 
     @Override

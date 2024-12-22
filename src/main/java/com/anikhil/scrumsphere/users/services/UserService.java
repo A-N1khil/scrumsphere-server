@@ -25,8 +25,8 @@ public class UserService implements BaseService<User> {
         return this.create(new User(userId, password));
     }
 
-    public Optional<User> findUserByUserId(String userId) {
-        User user = this.userDao.findUserByUserId(userId);
-        return Optional.ofNullable(user);
+    public User findUserByUserId(String userId) {
+        Optional<User> user = this.userDao.findUserByUserId(userId);
+        return user.orElse(null);
     }
 }
