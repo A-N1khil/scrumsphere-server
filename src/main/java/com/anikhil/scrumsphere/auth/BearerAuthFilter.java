@@ -17,80 +17,64 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Base64;
-import java.util.Optional;
 
 @Component
 @Log4j2
 @Profile("prod")
-public class BearerAuthFilter extends OncePerRequestFilter {
+public class BearerAuthFilter extends OncePerRequestFilter implements AuthFilter {
 
-    private final UserService userService;
+	private final UserService userService;
 
-    @Autowired
-    public BearerAuthFilter(UserService userService) {
-        this.userService = userService;
-    }
+	@Autowired
+	public BearerAuthFilter(UserService userService) {
+		this.userService = userService;
+	}
 
-    private User extractAndDecodeHeader(String header) {
+	@Override
+	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        // Remove the "Basic " prefix
-        String base64Credentials = StringUtils.removeStart(header, "Bearer ");
+		LOGGER.info("Extracting and decoding the header");
+		LOGGER.debug("Debug Extracting and decoding the header");
 
-        // Decode the Base64 encoded credentials
-        byte[] decoded = Base64.getDecoder().decode(base64Credentials);
-        String credentials = new String(decoded);
+		String header = request.getHeader("Authorization");
 
-        // Split the credentials into username and password
-        String[] splitCreds = StringUtils.split(credentials, ":");
-        return new User(splitCreds[0], splitCreds[1]);
-    }
+		// Do not allow empty headers
+		if (header == null || header.isEmpty() || !StringUtils.startsWith(header, "Basic ")) {
+			response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authorization header is missing");
+			return;
+		}
 
-    @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+		User requestedUser = extractAndDecodeHeader(header, "Bearer ");
+		User userFromDb = this.userService.findUserByUserId(requestedUser.getUserId());
 
-        LOGGER.info("Extracting and decoding the header");
-        LOGGER.debug("Debug Extracting and decoding the header");
+		// Check if the user exists
+		if (userFromDb == null) {
+			response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "User not found");
+			return;
+		}
 
-        String header = request.getHeader("Authorization");
+		boolean isAuthenticated = userFromDb.getPassword().equals(requestedUser.getPassword());
 
-        // Do not allow empty headers
-        if (header == null || header.isEmpty() || !StringUtils.startsWith(header, "Basic ")) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authorization header is missing");
-            return;
-        }
+		if (!isAuthenticated) {
+			response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid credentials");
+			return;
+		}
 
-        User requestedUser = extractAndDecodeHeader(header);
-        User userFromDb = this.userService.findUserByUserId(requestedUser.getUserId());
+		// Set the user to the Security Context
+		UserDetails authUser = org.springframework.security.core.userdetails.User.builder()
+			.username(userFromDb.getUserId())
+			.password(userFromDb.getPassword())
+			.roles("USER")
+			.build();
+		UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(authUser, null, authUser.getAuthorities());
+		SecurityContextHolder.getContext().setAuthentication(authToken);
 
-        // Check if the user exists
-        if (userFromDb == null) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "User not found");
-            return;
-        }
+		// Continue with the filter chain
+		filterChain.doFilter(request, response);
+	}
 
-        boolean isAuthenticated = userFromDb.getPassword().equals(requestedUser.getPassword());
-
-        if (!isAuthenticated) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid credentials");
-            return;
-        }
-
-        // Set the user to the Security Context
-        UserDetails authUser = org.springframework.security.core.userdetails.User.builder()
-                .username(userFromDb.getUserId())
-                .password(userFromDb.getPassword())
-                .roles("USER")
-                .build();
-        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(authUser, null, authUser.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(authToken);
-
-        // Continue with the filter chain
-        filterChain.doFilter(request, response);
-    }
-
-    @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) {
-        return StringUtils.startsWith(request.getRequestURI(), "/users/create");
-    }
+	@Override
+	protected boolean shouldNotFilter(HttpServletRequest request) {
+		return StringUtils.startsWith(request.getRequestURI(), "/users/create");
+	}
 }
