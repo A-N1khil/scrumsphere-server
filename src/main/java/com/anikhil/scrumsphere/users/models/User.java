@@ -2,34 +2,36 @@ package com.anikhil.scrumsphere.users.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.List;
+
 @Getter
 @Setter
+@NoArgsConstructor
 @Document("users")
 public class User {
 
-    @Id
-    private String id;
+	@Id
+	@JsonIgnore
+	private String id;
 
-    private final String userId;
+	private String userId;
 
-    @JsonIgnore
-    private final String password;
+	private String password;
 
-    @JsonIgnore
-    private String jwtToken;
+	private String jwtToken;
 
-    private String name;
+	private String name;
 
-    private String email;
+	private String email;
 
-    public User(String userId, String password) {
-        this.userId = userId;
-        this.password = password;
-        this.jwtToken = DigestUtils.md5Hex(userId + password);
-    }
+	private String role;
+
+	private String gender;
+
+	private List<String> teams;
 }
