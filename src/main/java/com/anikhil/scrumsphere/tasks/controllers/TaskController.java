@@ -26,8 +26,8 @@ public class TaskController extends BaseController {
 		this.taskService = taskService;
 	}
 
-	@GetMapping("/task/:id")
-	public JsonNode hello(@PathVariable String id) {
+	@GetMapping("/task/{id}")
+	public JsonNode getTaskViaId(@PathVariable String id) {
 		return sendSuccessResponse(this.taskService.getTaskById(id));
 	}
 
