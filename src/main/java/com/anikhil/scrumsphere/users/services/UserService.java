@@ -44,4 +44,9 @@ public class UserService implements BaseService<User> {
         Optional<User> user = this.userDao.findUserByIdAndPassword(userId, password);
         return user.orElse(null);
     }
+
+    @Override
+    public User saveUpdate(User user) {
+        return this.userDao.save(user);
+    }
 }
