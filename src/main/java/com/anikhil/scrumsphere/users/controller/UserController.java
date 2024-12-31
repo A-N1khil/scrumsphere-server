@@ -16,13 +16,14 @@ public class UserController extends BaseController {
     private final UserService userService;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, JsonUtils jsonUtils) {
+        super(jsonUtils);
         this.userService = userService;
     }
 
     @PostMapping("/register")
     public JsonNode createUser(@RequestBody JsonNode payload) {
-        User user = JsonUtils.fromJsonSilently(payload.toString(), User.class);
+        User user = this.jsonUtils.fromJsonSilently(payload.toString(), User.class);
         return sendSuccessResponse(this.userService.createUser(user));
     }
 

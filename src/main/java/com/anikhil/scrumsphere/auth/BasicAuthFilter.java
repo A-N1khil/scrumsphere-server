@@ -70,6 +70,6 @@ public class BasicAuthFilter extends OncePerRequestFilter implements AuthFilter 
 
 	@Override
 	protected boolean shouldNotFilter(HttpServletRequest request) {
-		return StringUtils.startsWithAny(request.getRequestURI(), "/users/register", "/users/login", "/users/checkUserId");
+		return StringUtils.startsWithAny(request.getRequestURI(), "/");
 	}
 }

@@ -8,36 +8,42 @@ import lombok.Setter;
 
 public class BaseController {
 
-    protected JsonNode sendSuccessResponse(Object o) {
-        return sendSuccessResponse(o, null);
-    }
+	protected final JsonUtils jsonUtils;
 
-    protected JsonNode sendSuccessResponse(Object o, String message) {
-        ResponseHolder responseHolder = new ResponseHolder(o, message, Status.SUCCESS);
-        return JsonUtils.toJsonSilently(responseHolder);
-    }
+	public BaseController(JsonUtils jsonUtils) {
+		this.jsonUtils = jsonUtils;
+	}
 
-    protected JsonNode sendFailureResponse(Object o) {
-        return sendFailureResponse(o, null);
-    }
+	protected JsonNode sendSuccessResponse(Object o) {
+		return sendSuccessResponse(o, null);
+	}
 
-    protected JsonNode sendFailureResponse(Object o, String message) {
-        ResponseHolder responseHolder = new ResponseHolder(o, message, Status.ERROR);
-        return JsonUtils.toJsonSilently(responseHolder);
-    }
+	protected JsonNode sendSuccessResponse(Object o, String message) {
+		ResponseHolder responseHolder = new ResponseHolder(o, message, Status.SUCCESS);
+		return this.jsonUtils.toJsonSilently(responseHolder);
+	}
 
-    @AllArgsConstructor
-    @Setter
-    @Getter
-    public static class ResponseHolder {
+	protected JsonNode sendFailureResponse(Object o) {
+		return sendFailureResponse(o, null);
+	}
 
-        private Object data;
-        private String message;
-        private Status status;
-    }
+	protected JsonNode sendFailureResponse(Object o, String message) {
+		ResponseHolder responseHolder = new ResponseHolder(o, message, Status.ERROR);
+		return this.jsonUtils.toJsonSilently(responseHolder);
+	}
 
-    enum Status {
-        SUCCESS,
-        ERROR,
-    }
+	@AllArgsConstructor
+	@Setter
+	@Getter
+	public static class ResponseHolder {
+
+		private Object data;
+		private String message;
+		private Status status;
+	}
+
+	enum Status {
+		SUCCESS,
+		ERROR,
+	}
 }
