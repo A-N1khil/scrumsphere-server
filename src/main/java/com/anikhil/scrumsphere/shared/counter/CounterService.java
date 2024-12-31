@@ -42,4 +42,13 @@ public class CounterService {
 		FindAndModifyOptions options = new FindAndModifyOptions().returnNew(true).upsert(true);
 		return this.mongoTemplate.findAndModify(query, update, options, Counter.class);
 	}
+
+	public Long getNextCounterForType(CounterType counterType) {
+		Counter counter = this.getAll();
+		return switch (counterType) {
+			case TASKS -> counter.getTasks() + 1;
+			case EPICS -> counter.getEpics() + 1;
+			case PROJECTS -> counter.getProjects() + 1;
+		};
+	}
 }

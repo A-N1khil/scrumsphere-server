@@ -62,4 +62,8 @@ public class TaskService implements BaseService<Task> {
 	public Task getTaskById(String id) {
 		return this.taskDao.getTaskById(id);
 	}
+
+	public Long getNextId() {
+		return this.counterService.getNextCounterForType(CounterType.TASKS);
+	}
 }

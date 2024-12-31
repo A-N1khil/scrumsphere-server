@@ -47,4 +47,9 @@ public class TaskController extends BaseController {
 		Task task = this.jsonUtils.fromJsonSilently(payload.toString(), Task.class);
 		return sendSuccessResponse(this.taskService.saveUpdate(task));
 	}
+
+	@GetMapping("/nextId")
+	public JsonNode getNextId() {
+		return sendSuccessResponse(this.taskService.getNextId());
+	}
 }
