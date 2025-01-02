@@ -16,4 +16,5 @@ public class Project extends MongoDocument {
 	private String epicId;
 	private String projectName;
 	private String projectDescription;
+	private Status status;
 }
